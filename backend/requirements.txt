@@ -1,0 +1,10 @@
+# runtime; para tests/lint ver requirements-dev.txt
+fastapi==0.142.2
+uvicorn[standard]==0.54.0
+sqlalchemy[asyncio]==2.1.1
+aiosqlite==0.22.1
+pydantic==2.13.5
+pydantic-settings==2.15.0
+python-multipart==0.0.32
+pypdf==6.19.0
+openai==1.109.1
