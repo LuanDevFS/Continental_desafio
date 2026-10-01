@@ -51,19 +51,24 @@ class AskQuestion:
         hits = retriever.search(question, k=self._top_k)
         relevant = [h for h in hits if h.score >= self._min_score]
 
-        if relevant:
-            answer = await self._assistant.answer(question, relevant)
-            sources = [
-                Source(
-                    document=hit.chunk.document_name,
-                    snippet=_snippet(hit.chunk.text),
-                    score=hit.score,
-                )
-                for hit in relevant
-            ]
+        if not relevant:
+            answer, sources = NO_ANSWER, []
         else:
-            answer = NO_ANSWER
-            sources = []
+            answer = await self._assistant.answer(question, relevant)
+            # si no hay respuesta no tiene sentido mostrar fragmentos:
+            # un fragmento sugiere que ese texto sí sirvió para responder
+            sources = (
+                []
+                if answer == NO_ANSWER
+                else [
+                    Source(
+                        document=hit.chunk.document_name,
+                        snippet=_snippet(hit.chunk.text),
+                        score=hit.score,
+                    )
+                    for hit in relevant
+                ]
+            )
 
         now = datetime.now(UTC)
         await self._messages.append(

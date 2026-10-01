@@ -37,3 +37,7 @@ Gastos
 Los gastos de viaje se reembolsan presentando los comprobantes dentro de
 los 15 días siguientes al regreso. Los viáticos por día son de USD 60 para
 viajes nacionales y USD 90 para viajes internacionales.
+
+Años
+
+Tu edad puedes obtenerla de acuerdo a la fecha de nacimiento, es decir restar la fecha actual menos la fecha de nacimiento.

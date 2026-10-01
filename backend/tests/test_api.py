@@ -140,6 +140,26 @@ def test_reupload_same_filename_replaces(client):
     assert "personal" not in res.json()["answer"]
 
 
+def test_no_answer_no_muestra_fragmentos(client):
+    # "años" aparece solo como encabezado: el retriever trae el chunk pero
+    # el asistente no encuentra oraciones útiles -> no debe citar fuentes
+    client.post(
+        "/documents",
+        files={
+            "file": (
+                "doc.txt",
+                b"Vacaciones\n\nLos empleados tienen 15 dias de vacaciones.\n\n"
+                b"Anos\n\nLos viaticos se reembolsan con comprobantes.",
+                "text/plain",
+            )
+        },
+    )
+    res = client.post("/ask", json={"session_id": "s", "question": "¿años?"})
+    body = res.json()
+    assert "No encontré" in body["answer"]
+    assert body["sources"] == []
+
+
 def test_delete_document(client_with_doc):
     doc_id = client_with_doc.get("/documents").json()[0]["id"]
     assert client_with_doc.delete(f"/documents/{doc_id}").status_code == 204
