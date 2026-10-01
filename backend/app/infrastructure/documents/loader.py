@@ -1,10 +1,15 @@
 import io
+import re
 
 from pypdf import PdfReader
 
 from app.domain.exceptions import EmptyDocumentError, UnsupportedFileTypeError
 
 SUPPORTED_EXTENSIONS = {".txt", ".md", ".pdf"}
+
+# un salto de línea simple en prosa suele ser wrapping del editor, no un
+# párrafo nuevo; se preservan párrafos (\n\n) y líneas de lista/encabezado
+_SOFT_BREAK = re.compile(r"(?<!\n)\n(?!\n)(?!\s*(?:[-*#•]|\d+[.)]))")
 
 
 def extract_text(filename: str, data: bytes) -> str:
@@ -14,7 +19,7 @@ def extract_text(filename: str, data: bytes) -> str:
         raise UnsupportedFileTypeError(filename, sorted(SUPPORTED_EXTENSIONS))
 
     text = _extract_pdf(data, filename) if ext == ".pdf" else data.decode("utf-8", errors="replace")
-    text = text.strip()
+    text = _SOFT_BREAK.sub(" ", text).strip()
     if not text:
         raise EmptyDocumentError(filename)
     return text

@@ -2,19 +2,19 @@ from app.infrastructure.ai.text import split_sentences
 
 
 class TextChunker:
-    """Divide el texto en chunks solapados respetando oraciones.
+    """Divide el texto en chunks respetando oraciones.
 
-    El solape evita que una respuesta quede cortada justo en el borde
-    entre dos chunks.
+    El solape repite la última oración del chunk anterior para que una
+    respuesta no quede cortada justo en el borde entre dos chunks.
     """
 
-    def __init__(self, max_chars: int = 900, overlap_chars: int = 150):
+    def __init__(self, max_chars: int = 900, overlap_sentences: int = 1):
         if max_chars <= 0:
             raise ValueError("max_chars debe ser positivo")
-        if overlap_chars >= max_chars:
-            raise ValueError("overlap_chars debe ser menor que max_chars")
+        if overlap_sentences < 0:
+            raise ValueError("overlap_sentences no puede ser negativo")
         self.max_chars = max_chars
-        self.overlap_chars = overlap_chars
+        self.overlap_sentences = overlap_sentences
 
     def split(self, text: str) -> list[str]:
         pieces: list[str] = []
@@ -27,15 +27,15 @@ class TextChunker:
                     pieces.append(sentence[i : i + self.max_chars])
 
         chunks: list[str] = []
-        current = ""
+        current: list[str] = []
+        current_len = 0
         for piece in pieces:
-            candidate = f"{current} {piece}" if current else piece
-            if len(candidate) > self.max_chars and current:
-                chunks.append(current)
-                tail = current[-self.overlap_chars :] if self.overlap_chars else ""
-                current = f"{tail} {piece}".strip()
-            else:
-                current = candidate
+            if current and current_len + len(piece) + 1 > self.max_chars:
+                chunks.append("\n".join(current))
+                current = current[-self.overlap_sentences :] if self.overlap_sentences else []
+                current_len = sum(len(p) + 1 for p in current)
+            current.append(piece)
+            current_len += len(piece) + 1
         if current:
-            chunks.append(current)
+            chunks.append("\n".join(current))
         return chunks
