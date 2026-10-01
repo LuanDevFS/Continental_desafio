@@ -1,3 +1,4 @@
+from app.domain.exceptions import DocumentNotFoundError
 from app.domain.models import Document, Message
 from app.domain.ports import DocumentRepository, MessageRepository
 
@@ -16,3 +17,12 @@ class ListDocuments:
 
     async def execute(self) -> list[Document]:
         return await self._documents.list_documents()
+
+
+class DeleteDocument:
+    def __init__(self, documents: DocumentRepository):
+        self._documents = documents
+
+    async def execute(self, document_id: str) -> None:
+        if not await self._documents.delete(document_id):
+            raise DocumentNotFoundError(document_id)

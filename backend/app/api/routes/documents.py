@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, File, UploadFile, status
 
-from app.api.deps import get_list_documents, get_register_document
+from app.api.deps import get_delete_document, get_list_documents, get_register_document
 from app.api.schemas import DocumentOut
-from app.application.queries import ListDocuments
+from app.application.queries import DeleteDocument, ListDocuments
 from app.application.register_document import RegisterDocument
 from app.domain.models import Document
 
@@ -31,6 +31,14 @@ async def list_documents(
     use_case: ListDocuments = Depends(get_list_documents),
 ) -> list[DocumentOut]:
     return [_to_out(d) for d in await use_case.execute()]
+
+
+@router.delete("/documents/{document_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_document(
+    document_id: str,
+    use_case: DeleteDocument = Depends(get_delete_document),
+) -> None:
+    await use_case.execute(document_id)
 
 
 def _to_out(document: Document) -> DocumentOut:

@@ -4,7 +4,7 @@ from fastapi import Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.application.ask_question import AskQuestion
-from app.application.queries import GetHistory, ListDocuments
+from app.application.queries import DeleteDocument, GetHistory, ListDocuments
 from app.application.register_document import RegisterDocument
 from app.config import Settings, get_settings
 from app.domain.ports import AssistantEngine
@@ -62,3 +62,9 @@ def get_list_documents(
     session: AsyncSession = Depends(get_session),
 ) -> ListDocuments:
     return ListDocuments(documents=SqlDocumentRepository(session))
+
+
+def get_delete_document(
+    session: AsyncSession = Depends(get_session),
+) -> DeleteDocument:
+    return DeleteDocument(documents=SqlDocumentRepository(session))

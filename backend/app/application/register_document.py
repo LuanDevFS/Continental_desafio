@@ -26,6 +26,12 @@ class RegisterDocument:
         text = extract_text(filename, data)
         chunks = self._chunker.split(text)
 
+        # subir de nuevo el mismo nombre reemplaza la versión anterior;
+        # si no, el corpus acumula versiones viejas del mismo doc
+        existing = await self._documents.get_by_filename(filename)
+        if existing:
+            await self._documents.delete(existing.id)
+
         document = Document(
             id=uuid.uuid4().hex,
             filename=filename,

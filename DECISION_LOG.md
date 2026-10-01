@@ -72,6 +72,13 @@ no tiene mensajes, no 404. El session_id lo genera el cliente (un uuid en
 el front), o sea que no existe un recurso "sesión" persistido que pueda o
 no estar; devolver 404 sería medio mentiroso.
 
+## Borrar y re-subir documentos
+
+`DELETE /documents/{id}` borra el doc con sus chunks. Además, subir un
+archivo con el mismo nombre que uno existente lo reemplaza: probando me
+di cuenta de que sin eso el corpus acumulaba versiones viejas y las
+respuestas salían del documento anterior.
+
 ## Frontend vanilla
 
 HTML/CSS/JS sin build ni framework. Para una sola pantalla (subir doc +
@@ -104,7 +111,7 @@ el caso de uso).
 - Alembic + Postgres en compose si esto fuera a producción
 - auth: hoy el session_id lo genera el cliente, cualquiera que lo adivine
   puede leer ese historial
-- paginación del historial y borrado de documentos
+- paginación del historial
 - stemming o sinónimos en el retrieval: hoy "remoto" no matchea con
   "home office" aunque hablan de lo mismo
 - deploy en railway/fly.io (era opcional)

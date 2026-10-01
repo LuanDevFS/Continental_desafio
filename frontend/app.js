@@ -77,10 +77,28 @@ async function loadDocuments() {
       const kb = (doc.size_bytes / 1024).toFixed(1);
       li.innerHTML = `<strong>${escapeHtml(doc.filename)}</strong>
         <div class="meta">${kb} KB · ${doc.chunk_count} chunks</div>`;
+
+      const del = document.createElement("button");
+      del.className = "del-doc";
+      del.textContent = "×";
+      del.title = "Eliminar documento";
+      del.onclick = () => deleteDocument(doc.id);
+      li.appendChild(del);
+
       docList.appendChild(li);
     }
   } catch {
     /* la lista es decorativa, no molestamos al usuario */
+  }
+}
+
+async function deleteDocument(id) {
+  try {
+    const res = await fetch(`/documents/${id}`, { method: "DELETE" });
+    if (!res.ok) throw new Error(await apiError(res));
+    loadDocuments();
+  } catch (err) {
+    showError(err.message);
   }
 }
 

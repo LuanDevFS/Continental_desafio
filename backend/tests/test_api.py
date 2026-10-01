@@ -75,6 +75,10 @@ def test_full_flow_ask_and_history(client_with_doc):
     ]
     assert "vacaciones" in history["messages"][0]["content"]
 
+    # las fechas tienen que venir con timezone, si no el front las
+    # muestra como hora local y quedan corridas
+    assert history["messages"][0]["created_at"].endswith("Z")
+
 
 def test_history_is_scoped_by_session(client_with_doc):
     client = client_with_doc
@@ -108,6 +112,46 @@ def test_ask_validates_input(client_with_doc):
     assert client_with_doc.post("/ask", json={"session_id": "", "question": "hola"}).status_code == 422
     assert client_with_doc.post("/ask", json={"session_id": "s", "question": " "}).status_code == 422
     assert client_with_doc.post("/ask", json={"question": "hola"}).status_code == 422
+
+
+def test_reupload_same_filename_replaces(client):
+    client.post(
+        "/documents",
+        files={"file": ("edad.txt", b"La edad es un dato personal. Punto.", "text/plain")},
+    )
+    client.post(
+        "/documents",
+        files={
+            "file": (
+                "edad.txt",
+                b"La edad se calcula restando el ano actual menos el ano de nacimiento.",
+                "text/plain",
+            )
+        },
+    )
+    docs = client.get("/documents").json()
+    assert len(docs) == 1
+
+    res = client.post(
+        "/ask",
+        json={"session_id": "s", "question": "¿cómo calculo mi edad?"},
+    )
+    assert "restando" in res.json()["answer"]
+    assert "personal" not in res.json()["answer"]
+
+
+def test_delete_document(client_with_doc):
+    doc_id = client_with_doc.get("/documents").json()[0]["id"]
+    assert client_with_doc.delete(f"/documents/{doc_id}").status_code == 204
+    assert client_with_doc.get("/documents").json() == []
+
+    # al borrar el único doc, preguntar vuelve a dar 409
+    res = client_with_doc.post("/ask", json={"session_id": "s", "question": "¿algo?"})
+    assert res.status_code == 409
+
+
+def test_delete_missing_document_returns_404(client):
+    assert client.delete("/documents/no-existe").status_code == 404
 
 
 def test_upload_pdf(client):

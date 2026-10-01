@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse
 from app.domain.exceptions import (
     AppError,
     AssistantUnavailableError,
+    DocumentNotFoundError,
     DocumentTooLargeError,
     EmptyDocumentError,
     NoDocumentLoadedError,
@@ -19,6 +20,7 @@ _STATUS_BY_ERROR = {
     DocumentTooLargeError: status.HTTP_413_CONTENT_TOO_LARGE,
     EmptyDocumentError: status.HTTP_422_UNPROCESSABLE_CONTENT,
     NoDocumentLoadedError: status.HTTP_409_CONFLICT,
+    DocumentNotFoundError: status.HTTP_404_NOT_FOUND,
     AssistantUnavailableError: status.HTTP_502_BAD_GATEWAY,
 }
 

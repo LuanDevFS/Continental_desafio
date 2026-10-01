@@ -69,6 +69,7 @@ la lista completa está en `.env.example`.
 |--------|-------------------------|--------------------------------------------|
 | POST   | `/documents`            | Sube documento (multipart, campo `file`)   |
 | GET    | `/documents`            | Lista lo cargado                           |
+| DELETE | `/documents/{id}`       | Borra un documento y sus chunks            |
 | POST   | `/ask`                  | `{session_id, question}` → respuesta       |
 | GET    | `/history/{session_id}` | Mensajes de la sesión                      |
 | GET    | `/health`               | Estado + modo de asistente                 |

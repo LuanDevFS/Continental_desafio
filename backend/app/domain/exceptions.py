@@ -25,5 +25,11 @@ class NoDocumentLoadedError(AppError):
         super().__init__("No hay ningún documento cargado. Sube un documento antes de preguntar.")
 
 
+class DocumentNotFoundError(AppError):
+    def __init__(self, document_id: str):
+        super().__init__(f"Documento no encontrado: {document_id}")
+        self.document_id = document_id
+
+
 class AssistantUnavailableError(AppError):
     """El proveedor de IA externo falló o no está disponible."""

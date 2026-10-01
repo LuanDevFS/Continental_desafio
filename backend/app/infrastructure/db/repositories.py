@@ -1,6 +1,7 @@
 import json
+from datetime import UTC
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.models import Chunk, Document, Message
@@ -43,10 +44,30 @@ class SqlDocumentRepository:
                 content_type=row.content_type,
                 size_bytes=row.size_bytes,
                 chunk_count=row.chunk_count,
-                uploaded_at=row.uploaded_at,
+                # sqlite guarda datetimes naive; siempre escribimos UTC
+                uploaded_at=row.uploaded_at.replace(tzinfo=UTC),
             )
             for row in rows
         ]
+
+    async def get_by_filename(self, filename: str) -> Document | None:
+        row = await self._session.scalar(select(DocumentRow).where(DocumentRow.filename == filename))
+        if row is None:
+            return None
+        return Document(
+            id=row.id,
+            filename=row.filename,
+            content_type=row.content_type,
+            size_bytes=row.size_bytes,
+            chunk_count=row.chunk_count,
+            uploaded_at=row.uploaded_at.replace(tzinfo=UTC),
+        )
+
+    async def delete(self, document_id: str) -> bool:
+        await self._session.execute(delete(ChunkRow).where(ChunkRow.document_id == document_id))
+        result = await self._session.execute(delete(DocumentRow).where(DocumentRow.id == document_id))
+        await self._session.commit()
+        return result.rowcount > 0
 
     async def all_chunks(self) -> list[Chunk]:
         rows = await self._session.execute(
@@ -93,7 +114,7 @@ class SqlMessageRepository:
                 session_id=row.session_id,
                 role=row.role,
                 content=row.content,
-                created_at=row.created_at,
+                created_at=row.created_at.replace(tzinfo=UTC),  # idem arriba
                 sources=json.loads(row.sources_json or "[]"),
             )
             for row in rows
