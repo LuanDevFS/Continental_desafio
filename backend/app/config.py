@@ -19,7 +19,7 @@ class Settings(BaseSettings):
 
     # retrieval
     retrieval_top_k: int = 4
-    min_similarity: float = 0.12
+    min_similarity: float = 0.08
 
     max_upload_bytes: int = 5 * 1024 * 1024
     cors_origins: str = "*"
