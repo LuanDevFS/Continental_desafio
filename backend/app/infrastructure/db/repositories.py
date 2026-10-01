@@ -35,9 +35,7 @@ class SqlDocumentRepository:
         await self._session.commit()
 
     async def list_documents(self) -> list[Document]:
-        rows = await self._session.scalars(
-            select(DocumentRow).order_by(DocumentRow.uploaded_at.desc())
-        )
+        rows = await self._session.scalars(select(DocumentRow).order_by(DocumentRow.uploaded_at.desc()))
         return [
             Document(
                 id=row.id,
@@ -87,7 +85,7 @@ class SqlMessageRepository:
 
     async def list_by_session(self, session_id: str) -> list[Message]:
         rows = await self._session.scalars(
-            select(MessageRow).where(MessageRow.session_id == session_id).order_by(MessageRow.created_at)
+            select(MessageRow).where(MessageRow.session_id == session_id).order_by(MessageRow.seq)
         )
         return [
             Message(

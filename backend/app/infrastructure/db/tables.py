@@ -32,7 +32,9 @@ class ChunkRow(Base):
 class MessageRow(Base):
     __tablename__ = "messages"
 
-    id: Mapped[str] = mapped_column(primary_key=True)
+    # seq garantiza el orden de inserción aunque dos mensajes compartan timestamp
+    seq: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    id: Mapped[str] = mapped_column(unique=True)
     session_id: Mapped[str]
     role: Mapped[str]
     content: Mapped[str] = mapped_column(Text)
@@ -40,4 +42,4 @@ class MessageRow(Base):
     created_at: Mapped[datetime]
 
 
-Index("ix_messages_session_created", MessageRow.session_id, MessageRow.created_at)
+Index("ix_messages_session_seq", MessageRow.session_id, MessageRow.seq)
