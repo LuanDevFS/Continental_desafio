@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Asistente de documentos</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <h1>Asistente de documentos</h1>
+
+      <section class="panel">
+        <h2>Documento</h2>
+        <p class="hint">Sube un .txt, .md o .pdf y pregúntale lo que quieras.</p>
+        <label class="file-drop" id="file-drop">
+          <input type="file" id="file-input" accept=".txt,.md,.pdf" hidden />
+          <span id="file-drop-label">Elegir archivo…</span>
+        </label>
+        <div id="upload-status" class="status"></div>
+        <ul id="doc-list" class="doc-list"></ul>
+      </section>
+
+      <section class="panel">
+        <h2>Sesión</h2>
+        <p class="session-id" id="session-label"></p>
+        <button id="new-session" class="secondary">Nueva conversación</button>
+      </section>
+    </aside>
+
+    <main class="chat">
+      <div id="messages" class="messages">
+        <div class="empty" id="empty-state">
+          Sube un documento para empezar a preguntar.
+        </div>
+      </div>
+
+      <form id="ask-form" class="ask-form">
+        <input
+          id="question-input"
+          type="text"
+          placeholder="Escribe tu pregunta…"
+          autocomplete="off"
+          required
+        />
+        <button type="submit" id="send-btn">Preguntar</button>
+      </form>
+      <div id="error-banner" class="error-banner" hidden></div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
