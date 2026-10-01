@@ -72,6 +72,14 @@ no tiene mensajes, no 404. El session_id lo genera el cliente (un uuid en
 el front), o sea que no existe un recurso "sesión" persistido que pueda o
 no estar; devolver 404 sería medio mentiroso.
 
+## Fechas
+
+Los `created_at` se guardan en UTC. Ojo con esto: sqlite devuelve los
+datetimes naive (sin zona horaria) y el navegador interpretaba el ISO
+pelado como hora local, así que las horas salían corridas. Por eso en el
+repositorio se marca el tz como UTC al leer, y el JSON sale con la Z al
+final que el front sí parsea bien.
+
 ## Borrar y re-subir documentos
 
 `DELETE /documents/{id}` borra el doc con sus chunks. Además, subir un
