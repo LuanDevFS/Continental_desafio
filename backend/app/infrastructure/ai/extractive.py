@@ -37,16 +37,20 @@ class ExtractiveAssistant:
         candidates: list[tuple[float, int, int, str]] = []
         seen: set[str] = set()
         for chunk_pos, hit in enumerate(context):
+            heading_boost = 0.0
             for sent_pos, sentence in enumerate(split_sentences(hit.chunk.text)):
                 sent_tokens = Counter(tokenize(sentence))
                 if sum(sent_tokens.values()) < _MIN_SENTENCE_TOKENS:
+                    # linea corta = probable encabezado de seccion: si matchea
+                    # la pregunta, las oraciones que le siguen son su contenido
+                    heading_boost = _sentence_score(q_tokens, sent_tokens)
                     continue
                 # el solape entre chunks puede repetir oraciones
                 key = " ".join(sorted(sent_tokens))
                 if key in seen:
                     continue
                 seen.add(key)
-                score = _sentence_score(q_tokens, sent_tokens)
+                score = _sentence_score(q_tokens, sent_tokens) + heading_boost * 0.5
                 if score >= self.min_sentence_score:
                     candidates.append((score, chunk_pos, sent_pos, sentence))
 
